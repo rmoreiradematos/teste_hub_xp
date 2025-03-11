@@ -17,15 +17,29 @@ export class MongoProductsRepository implements ProductsRepository {
     return createdProduct.save();
   }
 
-  async findAll(): Promise<Products[]> {
+  async findAll() {
     console.info('ProductsRepository > starting findAll');
-    return this.productModel.find().exec();
+    return this.productModel
+      .find()
+      .populate({
+        path: 'categoryIds',
+        select: 'name',
+        model: 'Category',
+      })
+      .exec();
   }
 
   async findOne(id: string): Promise<Products | null> {
     console.info('ProductsRepository > starting findOne');
     console.debug('ProductsRepository > id:', id);
-    return this.productModel.findById(id).exec();
+    return this.productModel
+      .findById(id)
+      .populate({
+        path: 'categoryIds',
+        select: 'name',
+        model: 'Category',
+      })
+      .exec();
   }
 
   async update(id: string, updateProductDto: any): Promise<Products | null> {

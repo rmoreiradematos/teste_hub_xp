@@ -101,13 +101,20 @@ describe('OrdersController', () => {
   });
 
   it('/orders (GET)', async () => {
-    await productsRepository.create({
+    const product = await productsRepository.create({
       name: 'Product',
       description: 'Product description',
       price: 100,
       categoryIds: [],
       imageUrl: '',
     });
+
+    await ordersRepository.create({
+      date: new Date(),
+      products: [String(product._id)],
+      total: 100,
+    });
+
     const response = await request(app.getHttpServer()).get('/orders');
 
     expect(response.status).toBe(200);

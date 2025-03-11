@@ -112,10 +112,9 @@ describe('ProductsController', () => {
   });
 
   it('/products (GET)', async () => {
-    const response = await request(app.getHttpServer())
-      .get('/products')
-      .expect(200);
+    const response = await request(app.getHttpServer()).get('/products');
 
+    expect(response.status).toBe(200);
     expect(response.body).toEqual(
       expect.arrayContaining([
         expect.objectContaining({

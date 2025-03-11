@@ -20,11 +20,21 @@ export class MongoDashBoardRepository implements DashboardRepository {
   ) {}
 
   async getSalesMetrics(filters: DashboardFiltersDto): Promise<SalesMetric> {
+    console.info('MongoDashBoardRepository > getSalesMetrics');
+    console.debug('MongoDashBoardRepository > Filters:', filters);
     const startDate = filters.startDate
       ? new Date(filters.startDate)
       : new Date();
     const endDate = filters.endDate ? new Date(filters.endDate) : new Date();
 
+    console.debug('MongoDashBoardRepository > { StartDate, EndDate }:', {
+      startDate,
+      endDate,
+    });
+
+    console.info(
+      'MongoDashBoardRepository > Getting productIds from categories',
+    );
     let productIdsFromCategories: string[] = [];
     if (filters.categoryIds?.length) {
       const products = await this.productModel.find({
@@ -33,10 +43,15 @@ export class MongoDashBoardRepository implements DashboardRepository {
       productIdsFromCategories = products.map((p) => String(p._id));
     }
 
+    console.debug(
+      'MongoDashBoardRepository > ProductIdsFromCategories:',
+      productIdsFromCategories,
+    );
     const matchQuery: any = {
       date: { $gte: startDate, $lte: endDate },
     };
 
+    console.info('MongoDashBoardRepository > Building match query');
     const allProductIds = [
       ...(filters.productIds || []),
       ...productIdsFromCategories,
@@ -46,7 +61,7 @@ export class MongoDashBoardRepository implements DashboardRepository {
       matchQuery.productIds = { $in: allProductIds };
     }
 
-    console.log('MatchQuery Final:', matchQuery);
+    console.debug('MongoDashBoardRepository > MatchQuery Inicial:', matchQuery);
 
     const [result] = await this.orderModel.aggregate<AggregationResult>([
       { $match: matchQuery },
@@ -60,10 +75,14 @@ export class MongoDashBoardRepository implements DashboardRepository {
       },
     ]);
 
+    console.debug('MongoDashBoardRepository > Result:', result);
+
     return result || { totalOrders: 0, totalRevenue: 0, averageOrderValue: 0 };
   }
 
   async getOrdersByPeriod(filters: DashboardFiltersDto) {
+    console.info('MongoDashBoardRepository > getOrdersByPeriod');
+    console.debug('MongoDashBoardRepository > Filters:', filters);
     const pipeline = [
       {
         $match: {
@@ -93,6 +112,7 @@ export class MongoDashBoardRepository implements DashboardRepository {
         },
       },
     ];
+    console.debug('MongoDashBoardRepository > Pipeline:', pipeline);
 
     return this.orderModel.aggregate(pipeline);
   }

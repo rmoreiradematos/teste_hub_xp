@@ -7,10 +7,12 @@ export class DashboardsService {
   constructor(private readonly dashboardRepository: DashboardRepository) {}
 
   async getSalesMetrics(filters: DashboardFiltersDto) {
+    console.info('DashboardsService > getSalesMetrics');
     return await this.dashboardRepository.getSalesMetrics(filters);
   }
 
   async getOrdersByPeriod(filters: DashboardFiltersDto) {
+    console.info('DashboardsService > getOrdersByPeriod');
     return await this.dashboardRepository.getOrdersByPeriod(filters);
   }
 }

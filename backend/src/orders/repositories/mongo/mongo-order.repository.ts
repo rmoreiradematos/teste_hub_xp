@@ -19,11 +19,25 @@ export class MongoOrderRepository implements OrdersRepository {
   }
   async findAll() {
     console.info('MongoOrderRepository > findAll');
-    return this.orderModel.find().exec();
+    return this.orderModel
+      .find()
+      .populate({
+        path: 'products',
+        select: 'name',
+        model: 'Products',
+      })
+      .exec();
   }
   async findOne(id: string) {
     console.info('MongoOrderRepository > findOne');
-    return this.orderModel.findById(id).exec();
+    return this.orderModel
+      .findById(id)
+      .populate({
+        path: 'products',
+        select: 'name',
+        model: 'Products',
+      })
+      .exec();
   }
   async update(id: string, updateOrderDto: UpdateOrderDto) {
     console.info('MongoOrderRepository > update');

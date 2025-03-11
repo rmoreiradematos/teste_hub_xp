@@ -13,7 +13,7 @@ export class Category extends Document {
   @Prop({ default: true })
   isActive: boolean;
 
-  @Prop({ type: [{ type: Types.ObjectId, ref: 'Product' }] })
+  @Prop({ type: [{ type: Types.ObjectId, ref: 'Products' }] })
   productIds: Products[];
 }
 

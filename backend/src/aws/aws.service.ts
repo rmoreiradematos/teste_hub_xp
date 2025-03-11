@@ -1,27 +1,27 @@
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { BadRequestException, Injectable } from '@nestjs/common';
-
 @Injectable()
 export class AwsService {
   private readonly s3: S3Client;
-  private readonly BUCKET_NAME = 'my-bucket';
+  private readonly BUCKET_NAME = process.env.AWS_BUCKET_NAME || 'my-bucket';
 
   constructor() {
     this.s3 = new S3Client({
-      region: 'us-east-1',
-      endpoint: 'http://localhost:4566',
+      region: process.env.AWS_REGION || 'us-east-1',
+      endpoint: process.env.AWS_ENDPOINT,
       forcePathStyle: true,
       credentials: {
-        accessKeyId: 'test',
-        secretAccessKey: 'test',
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID || 'teste',
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || 'teste',
       },
     });
   }
 
   async getPresignedUrl(): Promise<{ url: string; key: string }> {
     console.info('AWSService > Generating presigned URL');
-    const key = `uploads/${Date.now()}.jpg`;
+
+    const key = `{Date.now()}.jpg`;
     console.debug('AWSService >  Key:', key);
     const command = new PutObjectCommand({
       Bucket: this.BUCKET_NAME,

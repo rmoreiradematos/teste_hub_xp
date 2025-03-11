@@ -8,11 +8,13 @@ export class DashboardsController {
 
   @Get('/metrics')
   async getSalesMetrics(@Query() filters: DashboardFiltersDto) {
+    console.info('DashboardsController > getSalesMetrics');
     return this.dashboardsService.getSalesMetrics(filters);
   }
 
   @Get('/orders-by-period')
   async getOrdersByPeriod(@Query() filters: DashboardFiltersDto) {
+    console.info('DashboardsController > getOrdersByPeriod');
     return this.dashboardsService.getOrdersByPeriod(filters);
   }
 }

@@ -1,0 +1,69 @@
+version: '3.8'
+
+services:
+  mongo:
+    image: mongo:latest
+    restart: always
+    ports:
+      - '27017:27017'
+    volumes:
+      - mongo-dev-data:/data/db
+    environment:
+      MONGO_INITDB_DATABASE: nest-dev
+    networks:
+      - backend-network
+
+  nest-app:
+    build: .
+    ports:
+      - '3000:3000'
+    depends_on:
+      - mongo
+      - localstack
+    environment:
+      - NODE_ENV=development
+      - MONGODB_URI=mongodb://mongo:27017/nest-dev
+      - AWS_ENDPOINT=http://localstack:4566
+    networks:
+      - backend-network
+    command:
+      - sh
+      - -c
+      - 'sleep 10 && npm run start:dev'
+
+  localstack:
+    image: localstack/localstack:latest
+    restart: always
+    ports:
+      - '4566:4566'
+      - '4571:4571'
+    environment:
+      - SERVICES=s3,dynamodb,lambda,apigateway,sqs,sns
+      - DEFAULT_REGION=us-east-1
+      - EDGE_PORT=4566
+      - LAMBDA_EXECUTOR=docker
+    volumes:
+      - '/var/run/docker.sock:/var/run/docker.sock'
+      - ${LOCALSTACK_DATA_VOLUME}:/var/lib/localstack
+
+  terraform:
+    image: hashicorp/terraform:latest
+    working_dir: /workspace
+    volumes:
+      - .:/workspace
+    depends_on:
+      - localstack
+    entrypoint:
+      [
+        '/bin/sh',
+        '-c',
+        'sleep 10 && terraform init && terraform apply -auto-approve',
+      ]
+
+networks:
+  backend-network:
+    driver: bridge
+
+volumes:
+  mongo-dev-data:
+  localstack-dev-data:

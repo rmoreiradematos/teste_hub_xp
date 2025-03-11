@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  localstack:
+    image: localstack/localstack:latest
+    restart: always
+    ports:
+      - '4566:4566'
+    environment:
+      - SERVICES=s3
+      - AWS_DEFAULT_REGION=us-east-1
+      - DOCKER_HOST=unix:///var/run/docker.sock
+    volumes:
+      - '/var/run/docker.sock:/var/run/docker.sock'
+      - 'localstack-data:/var/lib/localstack'
+
+  terraform:
+    image: hashicorp/terraform:latest
+    working_dir: /workspace
+    volumes:
+      - .:/workspace
+    depends_on:
+      - localstack
+    entrypoint:
+      [
+        '/bin/sh',
+        '-c',
+        'sleep 10 && terraform init && terraform apply -auto-approve',
+      ]
+
+volumes:
+  localstack-data:

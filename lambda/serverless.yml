@@ -1,0 +1,18 @@
+service: order-notification-service
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: us-east-1
+
+functions:
+  sendNotification:
+    handler: handler.sendNotification
+    events:
+      - http:
+          path: notify
+          method: post
+          cors: true
+
+plugins:
+  - serverless-offline

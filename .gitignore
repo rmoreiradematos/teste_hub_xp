@@ -2,6 +2,7 @@ data/
 backend/terraform.*
 backend/.terraform.*
 backend/.terraform/*
+frontend/
 # Logs
 logs
 *.log

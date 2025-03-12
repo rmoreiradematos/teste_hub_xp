@@ -86,6 +86,21 @@ export const ProductList = () => {
         pageSizeOptions={[5]}
         getRowHeight={() => "auto"}
         getRowId={(row) => row._id}
+        sx={{
+          border: "1px solid #ccc",
+          boxShadow: 2,
+          "& .MuiDataGrid-columnHeaders": {
+            backgroundColor: "#f5f5f5",
+            fontWeight: "bold",
+            textAlign: "center",
+          },
+          "& .MuiDataGrid-cell": {
+            borderBottom: "1px solid #ccc",
+          },
+          "& .MuiDataGrid-row:hover": {
+            backgroundColor: "#f0f0f0",
+          },
+        }}
       />
     </div>
   );

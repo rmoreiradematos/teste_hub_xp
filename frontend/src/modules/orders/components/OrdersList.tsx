@@ -4,9 +4,24 @@ import { IconButton } from "@mui/material";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { getOrders, OrderMapped } from "../service";
+import { deleteOrder, getOrders, OrderMapped } from "../service";
 
-const columns: GridColDef[] = [
+const handleDelete = async (
+  id: string,
+  setOrders: (orders: OrderMapped[]) => void
+) => {
+  try {
+    await deleteOrder(id);
+    const orders = await getOrders();
+    setOrders(orders);
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+const getColumns = (
+  setOrders: (orders: OrderMapped[]) => void
+): GridColDef[] => [
   { field: "date", headerName: "Data", width: 200, align: "center" },
   {
     field: "products",
@@ -34,11 +49,12 @@ const columns: GridColDef[] = [
     headerName: "Excluir",
     width: 100,
     renderCell: (params) => (
-      <Link to={`edit/${params.id}`}>
-        <IconButton>
-          <DeleteIcon />
-        </IconButton>
-      </Link>
+      <IconButton
+        onClick={() => handleDelete(params.id as string, setOrders)}
+        color="error"
+      >
+        <DeleteIcon />
+      </IconButton>
     ),
   },
 ];
@@ -58,7 +74,7 @@ export const OrdersList = () => {
     <div style={{ height: 400, width: "100%" }}>
       <DataGrid
         rows={orders}
-        columns={columns}
+        columns={getColumns(setOrders)}
         pagination
         pageSizeOptions={[5]}
         getRowHeight={() => 60}

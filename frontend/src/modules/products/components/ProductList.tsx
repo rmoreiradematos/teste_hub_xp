@@ -1,15 +1,27 @@
+import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import { IconButton } from "@mui/material";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { getProducts, ProductMapped } from "../services";
+import { deleteProduct, getProducts, ProductMapped } from "../services";
 
-const columns: GridColDef[] = [
-  { field: "name", headerName: "Nome", width: 200 },
-  { field: "price", headerName: "Preço", type: "number" },
-  { field: "description", headerName: "Descrição", width: 200 },
-  { field: "categoryIds", headerName: "Categoria", width: 200 },
+const handleDelete = async (
+  id: string,
+  setProducts: (products: ProductMapped[]) => void
+) => {
+  try {
+    await deleteProduct(id);
+    const products = await getProducts();
+    setProducts(products);
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+const getColumns = (
+  setProducts: (products: ProductMapped[]) => void
+): GridColDef[] => [
   {
     field: "imageUrl",
     headerName: "Imagem",
@@ -27,6 +39,10 @@ const columns: GridColDef[] = [
       />
     ),
   },
+  { field: "name", headerName: "Nome", width: 200 },
+  { field: "description", headerName: "Descrição", width: 200 },
+  { field: "price", headerName: "Preço", width: 200 },
+  { field: "categoryIds", headerName: "Categoria", width: 200 },
   {
     field: "edit",
     headerName: "Editar",
@@ -39,6 +55,19 @@ const columns: GridColDef[] = [
       </Link>
     ),
   },
+  {
+    field: "delete",
+    headerName: "Deletar",
+    width: 100,
+    renderCell: (params) => (
+      <IconButton
+        onClick={() => handleDelete(params.id as string, setProducts)}
+        color="error"
+      >
+        <DeleteIcon />
+      </IconButton>
+    ),
+  },
 ];
 
 export const ProductList = () => {
@@ -48,13 +77,11 @@ export const ProductList = () => {
     getProducts().then(setProducts);
   }, []);
 
-  console.log(products);
-
   return (
     <div style={{ height: 400, width: "100%" }}>
       <DataGrid
         rows={products}
-        columns={columns}
+        columns={getColumns(setProducts)}
         pagination
         pageSizeOptions={[5]}
         getRowHeight={() => "auto"}

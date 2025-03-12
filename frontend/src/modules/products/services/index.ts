@@ -81,3 +81,7 @@ export const updateProduct = async (
 export const updateImage = async (id: string, image: File) => {
   return await HttpService.patchFile<Product>(`/products/${id}/image`, image);
 };
+
+export const deleteProduct = async (id: string) => {
+  return await HttpService.delete(`/products/${id}`);
+};

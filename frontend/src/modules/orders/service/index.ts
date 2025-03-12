@@ -56,6 +56,10 @@ export const updateOrder = async (id: String, order: Omit<Order, "id">) => {
   return HttpService.patch<OrderResponse>(`/orders/${id}`, order);
 };
 
+export const deleteOrder = async (id: string) => {
+  return HttpService.delete(`/orders/${id}`);
+};
+
 export function formatDate(dateString: string) {
   const date = new Date(dateString);
   const day = date.getUTCDate().toString().padStart(2, "0");

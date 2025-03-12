@@ -31,3 +31,7 @@ export const updateCategory = async (id: string, category: Category) => {
 export const createCategory = async (category: Omit<Category, "id">) => {
   return await HttpService.post<Category>("/categories", category);
 };
+
+export const deleteCategory = async (id: string) => {
+  return await HttpService.delete(`/categories/${id}`);
+};

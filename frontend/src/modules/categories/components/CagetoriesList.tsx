@@ -36,6 +36,7 @@ export const CategoriesList = () => {
         pagination
         pageSizeOptions={[5]}
         getRowHeight={() => "auto"}
+        getRowId={(row) => row._id}
       />
     </div>
   );

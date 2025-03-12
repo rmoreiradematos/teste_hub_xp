@@ -1,22 +1,19 @@
+import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import { IconButton } from "@mui/material";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { getOrders, OrderResponse } from "../service";
+import { getOrders, OrderMapped } from "../service";
 
 const columns: GridColDef[] = [
-  { field: "id", headerName: "ID", width: 150, align: "center" },
+  { field: "date", headerName: "Data", width: 200, align: "center" },
   {
     field: "products",
     headerName: "Produtos",
-    width: 350,
+    width: 400,
     renderCell: (params) => (
-      <div>
-        {params.value
-          .map((product: { name: string }) => product.name)
-          .join(", ")}
-      </div>
+      <div>{params.value.map((product: string) => product).join(", ")}</div>
     ),
   },
   { field: "total", headerName: "Total", width: 200, align: "center" },
@@ -32,10 +29,22 @@ const columns: GridColDef[] = [
       </Link>
     ),
   },
+  {
+    field: "excluir",
+    headerName: "Excluir",
+    width: 100,
+    renderCell: (params) => (
+      <Link to={`edit/${params.id}`}>
+        <IconButton>
+          <DeleteIcon />
+        </IconButton>
+      </Link>
+    ),
+  },
 ];
 
 export const OrdersList = () => {
-  const [orders, setOrders] = useState<OrderResponse[]>([]);
+  const [orders, setOrders] = useState<OrderMapped[]>([]);
 
   useEffect(() => {
     async function loadOrders() {
@@ -53,6 +62,7 @@ export const OrdersList = () => {
         pagination
         pageSizeOptions={[5]}
         getRowHeight={() => 60}
+        getRowId={(row) => String(row.id)}
         sx={{
           border: "1px solid #ccc",
           boxShadow: 2,

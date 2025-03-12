@@ -16,16 +16,17 @@ import { useEffect, useState } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { MessageModal } from "../../../components/MessageModal";
-import { getProducts, ProductResponse } from "../../products/services";
+import { getProducts, ProductMapped } from "../../products/services";
 import { createOrder, Order } from "../service";
 
 interface OrderFormData {
+  date: Date;
   products: string[];
   total: number;
 }
 
 export const OrderCreate = () => {
-  const [products, setProducts] = useState<ProductResponse[]>([]);
+  const [products, setProducts] = useState<ProductMapped[]>([]);
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
@@ -34,6 +35,7 @@ export const OrderCreate = () => {
   const [_, setShouldNavigate] = useState(false);
   const { control, handleSubmit, watch } = useForm<OrderFormData>({
     defaultValues: {
+      date: new Date(),
       products: [],
       total: 0,
     },
@@ -54,17 +56,13 @@ export const OrderCreate = () => {
     setIsSubmitting(true);
     try {
       const total = data.products.reduce((acc, productId) => {
-        const product = products.find(
-          (prod) => prod.id.toString() === productId
-        );
+        const product = products.find((prod) => String(prod.id) === productId);
         return acc + (product?.price || 0);
       }, 0);
 
-      const order: Order = {
-        id: Date.now(),
-        products: data.products.map(
-          (id) => products.find((prod) => prod.id.toString() === id)?.name || ""
-        ),
+      const order: Omit<Order, "id"> = {
+        date: new Date(),
+        products: data.products,
         total,
       };
 
@@ -112,17 +110,14 @@ export const OrderCreate = () => {
                         selected
                           .map(
                             (id: string) =>
-                              products.find((prod) => prod.id.toString() === id)
+                              products.find((prod) => String(prod.id) === id)
                                 ?.name
                           )
                           .join(", ")
                       }
                     >
                       {products.map((product) => (
-                        <MenuItem
-                          key={product.id}
-                          value={product.id.toString()}
-                        >
+                        <MenuItem key={product.id} value={String(product.id)}>
                           {product.name}
                         </MenuItem>
                       ))}
@@ -146,7 +141,7 @@ export const OrderCreate = () => {
                     disabled
                     value={selectedProducts.reduce((acc, productId) => {
                       const product = products.find(
-                        (prod) => prod.id.toString() === productId
+                        (prod) => String(prod.id) === productId
                       );
                       return acc + (product?.price || 0);
                     }, 0)}

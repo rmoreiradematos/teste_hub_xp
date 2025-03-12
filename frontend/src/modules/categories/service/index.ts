@@ -1,33 +1,33 @@
+import HttpService from "../../../service/httpService";
+
 const mockCategories = [
   {
-    id: 1,
+    _id: "1",
     name: "Category 1",
   },
   {
-    id: 2,
+    _id: "2",
     name: "Category 2",
   },
 ];
 
 export interface Category {
-  id: number;
+  _id: String;
   name: string;
 }
 
 export const getCategories = async () => {
-  return mockCategories;
+  return await HttpService.get<Category[]>("/categories");
 };
 
 export const getCategory = async (id: string) => {
-  return mockCategories.find((category) => category.id === Number(id));
+  return await HttpService.get<Category>(`/categories/${id}`);
 };
 
-export const updateCategory = async (category: Category) => {
-  return category;
+export const updateCategory = async (id: string, category: Category) => {
+  return await HttpService.patch<Category>(`/categories/${id}`, category);
 };
 
 export const createCategory = async (category: Omit<Category, "id">) => {
-  const newCategory = { ...category, id: mockCategories.length + 1 };
-  mockCategories.push(newCategory);
-  return newCategory;
+  return await HttpService.post<Category>("/categories", category);
 };

@@ -16,7 +16,7 @@ import { useEffect, useState } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { useNavigate, useParams } from "react-router-dom";
 import { MessageModal } from "../../../components/MessageModal";
-import { getProducts, ProductResponse } from "../../products/services";
+import { getProducts, ProductMapped } from "../../products/services";
 import { getOrderById, Order, updateOrder } from "../service";
 
 interface OrderFormData {
@@ -27,13 +27,12 @@ interface OrderFormData {
 export const OrderEdit = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [products, setProducts] = useState<ProductResponse[]>([]);
+  const [products, setProducts] = useState<ProductMapped[]>([]);
   const [order, setOrder] = useState<Order | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
   const [modalType, setModalType] = useState<"success" | "error">("success");
-  const [_, setShouldNavigate] = useState(false);
   const { control, handleSubmit, setValue, watch } = useForm<OrderFormData>({
     defaultValues: {
       products: [],
@@ -44,21 +43,31 @@ export const OrderEdit = () => {
   const selectedProducts = watch("products");
 
   useEffect(() => {
-    getProducts().then(setProducts);
+    const fetchData = async () => {
+      try {
+        const productsData = await getProducts();
+        setProducts(productsData);
 
-    if (id) {
-      getOrderById(parseInt(id)).then((orderData) => {
-        setOrder({
-          ...orderData,
-          products: orderData.products.map((product) => product.name),
-        });
-        setValue(
-          "products",
-          orderData.products.map((product) => product.id.toString())
-        );
-        setValue("total", orderData.total);
-      });
-    }
+        if (id) {
+          const orderData = await getOrderById(id);
+          setOrder({ ...orderData, id: Number(orderData.id) });
+
+          const productIds = orderData.products.map((productName) => {
+            const product = productsData.find(
+              (prod) => prod.name === productName
+            );
+            return product ? String(product.id) : "";
+          });
+
+          setValue("products", productIds);
+          setValue("total", orderData.total);
+        }
+      } catch (error) {
+        console.error("Erro ao carregar dados:", error);
+      }
+    };
+
+    fetchData();
   }, [id, setValue]);
 
   const handleCloseModal = () => {
@@ -69,31 +78,29 @@ export const OrderEdit = () => {
   const onSubmit: SubmitHandler<OrderFormData> = async (data) => {
     setIsSubmitting(true);
     try {
-      const total = data.products.reduce((acc, productId) => {
-        const product = products.find(
-          (prod) => prod.id.toString() === productId
-        );
-        return acc + (product?.price || 0);
-      }, 0);
+      if (id) {
+        const total = data.products.reduce((acc, productId) => {
+          const product = products.find(
+            (prod) => String(prod.id) === productId
+          );
+          return acc + (product?.price || 0);
+        }, 0);
 
-      const updatedOrder: Order = {
-        ...order!,
-        products: data.products.map(
-          (id) => products.find((prod) => prod.id.toString() === id)?.name || ""
-        ),
-        total,
-      };
-
-      await updateOrder(updatedOrder);
-      setModalMessage("Pedido atualizado com sucesso!");
-      setModalType("success");
-      setModalOpen(true);
+        const updatedOrder: Omit<Order, "id"> = {
+          date: new Date(),
+          products: data.products,
+          total,
+        };
+        await updateOrder(id, updatedOrder);
+        setModalMessage("Pedido atualizado com sucesso!");
+        setModalType("success");
+        setModalOpen(true);
+      }
     } catch (error) {
       console.error("Erro ao atualizar pedido:", error);
       setModalMessage("Erro ao editar o pedido.");
       setModalType("error");
       setModalOpen(true);
-      setShouldNavigate(true);
     } finally {
       setIsSubmitting(false);
     }
@@ -135,20 +142,19 @@ export const OrderEdit = () => {
                         selected
                           .map(
                             (id: string) =>
-                              products.find((prod) => prod.id.toString() === id)
+                              products.find((prod) => String(prod.id) === id)
                                 ?.name
                           )
                           .join(", ")
                       }
                     >
-                      {products.map((product) => (
-                        <MenuItem
-                          key={product.id}
-                          value={product.id.toString()}
-                        >
-                          {product.name}
-                        </MenuItem>
-                      ))}
+                      {products.map((product) => {
+                        return (
+                          <MenuItem key={product.id} value={String(product.id)}>
+                            {product.name}
+                          </MenuItem>
+                        );
+                      })}
                     </Select>
                   </FormControl>
                 )}
@@ -169,7 +175,7 @@ export const OrderEdit = () => {
                     disabled
                     value={selectedProducts.reduce((acc, productId) => {
                       const product = products.find(
-                        (prod) => prod.id.toString() === productId
+                        (prod) => String(prod.id) === productId
                       );
                       return acc + (product?.price || 0);
                     }, 0)}

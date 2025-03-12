@@ -227,7 +227,7 @@ export const ProductEdit = () => {
                       renderValue={(selected) => selected.join(", ")}
                     >
                       {categories.map((category) => (
-                        <MenuItem key={category.id} value={category.id}>
+                        <MenuItem value={category._id as string}>
                           {category.name}
                         </MenuItem>
                       ))}

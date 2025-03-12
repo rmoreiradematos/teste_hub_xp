@@ -1,8 +1,4 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import { ProductsPage } from "./modules/products";
-// import { CategoriesPage } from "./modules/categories";
-// import { OrdersPage } from "./modules/orders";
-// import { DashboardPage } from "./modules/dashboard";
 import Layout from "./components/Layout";
 import { CategoriesPage } from "./modules/categories";
 import { CategoryCreate } from "./modules/categories/components/CategoryCreate";
@@ -11,6 +7,7 @@ import { DashboardPage } from "./modules/dashboards/components/DashboardPage";
 import { OrdersPage } from "./modules/orders";
 import { OrderCreate } from "./modules/orders/components/OrderCreate";
 import { OrderEdit } from "./modules/orders/components/OrderEdit";
+import { ProductsPage } from "./modules/products";
 import { ProductCreate } from "./modules/products/components/ProductCreate";
 import { ProductEdit } from "./modules/products/components/ProductEdit";
 

@@ -1,17 +1,8 @@
-const mockProducts = [
-  {
-    id: "1",
-    name: "Produto Mock",
-    description: "Descrição mockada",
-    price: 99.9,
-    categoryIds: ["1", "2"],
-    imageUrl:
-      "https://s2-techtudo.glbimg.com/L9wb1xt7tjjL-Ocvos-Ju0tVmfc=/0x0:1200x800/984x0/smart/filters:strip_icc()/i.s3.glbimg.com/v1/AUTH_08fbf48bc0524877943fe86e43087e7a/internal_photos/bs/2023/q/l/TIdfl2SA6J16XZAy56Mw/canvaai.png",
-  },
-];
+import HttpService from "../../../service/httpService";
+import { Category } from "../../categories/service";
 
 export interface Product {
-  id: string;
+  _id: string;
   name: string;
   description: string;
   price: number;
@@ -20,31 +11,73 @@ export interface Product {
 }
 
 export interface ProductResponse {
+  _id: string;
+  name: string;
+  description: string;
+  price: number;
+  categoryIds?: Array<Partial<Category>>;
+  imageUrl: string;
+}
+
+export interface ProductMapped {
   id: string;
   name: string;
   description: string;
   price: number;
-  categoryIds?: string[];
+  categoryIds: string[];
   imageUrl: string;
 }
 
-export const getProducts = async () => mockProducts;
+export const getProducts = async () => {
+  const products = await HttpService.get<ProductResponse[]>("/products");
+  const mappedProducts: ProductMapped[] = products.map((product) => ({
+    ...product,
+    id: product._id,
+    categoryIds:
+      product.categoryIds
+        ?.map((category) => category.name!)
+        .filter((name): name is string => !!name) || [],
+  }));
+  return mappedProducts;
+};
+
 export const createProduct = async (product: Omit<Product, "id">) => {
-  const newProduct = { ...product, id: Date.now().toString() };
-  return newProduct;
+  const { image, ...productData } = product;
+  const imageFile =
+    image instanceof File
+      ? image
+      : new File([image ?? ""], "filename.jpg", {
+          type: "image/jpeg",
+        });
+
+  return await HttpService.postFile<Product>(
+    "/products",
+    productData,
+    imageFile
+  );
 };
 
 export const getProductById = async (id: string) => {
-  return mockProducts[0];
+  const product = await HttpService.get<ProductResponse>(`/products/${id}`);
+  const mappedProduct: ProductMapped = {
+    ...product,
+    id: product._id,
+    categoryIds:
+      product.categoryIds
+        ?.map((category) => category.name!)
+        .filter((name): name is string => !!name) || [],
+  };
+
+  return mappedProduct;
 };
 
 export const updateProduct = async (
   id: string,
   product: Omit<Product, "id | imageUrl">
 ) => {
-  return product;
+  return await HttpService.patch<Product>(`/products/${id}`, product);
 };
 
 export const updateImage = async (id: string, image: File) => {
-  return image;
+  return await HttpService.patchFile<Product>(`/products/${id}/image`, image);
 };

@@ -101,6 +101,7 @@ export const ProductCreate = () => {
         image: data.image,
       } as Omit<Product, "id">;
 
+      console.log("productForm", formData);
       await createProduct(productForm);
       setModalMessage("Produto criado com sucesso!");
       setModalType("success");
@@ -198,13 +199,23 @@ export const ProductCreate = () => {
                       {...field}
                       multiple
                       label="Categorias"
-                      renderValue={(selected) => selected.join(", ")}
+                      renderValue={(selected) => {
+                        const selectedNames = selected.map((id) => {
+                          const category = categories.find(
+                            (cat) => cat._id === id
+                          );
+                          return category ? category.name : "";
+                        });
+                        return selectedNames.join(", ");
+                      }}
                     >
-                      {categories.map((category) => (
-                        <MenuItem key={category.id} value={category.id}>
-                          {category.name}
-                        </MenuItem>
-                      ))}
+                      {categories.map((category) => {
+                        return (
+                          <MenuItem value={String(category._id)}>
+                            {category.name}
+                          </MenuItem>
+                        );
+                      })}
                     </Select>
                     <FormHelperText>
                       {errors.categoryIds?.message}

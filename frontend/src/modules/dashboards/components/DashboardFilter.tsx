@@ -5,7 +5,7 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import dayjs from "dayjs";
 import { Category } from "../../categories/service";
-import { Product } from "../../products/services";
+import { ProductMapped } from "../../products/services";
 
 const FiltersContainer = styled("div")({
   display: "flex",
@@ -25,7 +25,7 @@ interface DashboardFiltersProps {
   filters: FilterState;
   setFilters: (filters: FilterState) => void;
   categories: Category[];
-  products: Array<Partial<Product>>;
+  products: ProductMapped[];
 }
 
 export const DashboardFilters = ({
@@ -62,9 +62,7 @@ export const DashboardFilters = ({
           }
         >
           {categories.map((category) => (
-            <MenuItem key={category.id} value={category.id}>
-              {category.name}
-            </MenuItem>
+            <MenuItem value={String(category._id)}>{category.name}</MenuItem>
           ))}
         </Select>
       </FormControl>

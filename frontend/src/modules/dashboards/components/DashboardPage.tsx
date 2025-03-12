@@ -1,7 +1,8 @@
 import { Alert, CircularProgress } from "@mui/material";
 import { useEffect, useState } from "react";
-import { getProducts, Product } from "../../products/services";
-import { getCategories, getOrdersByPeriod, getSalesMetrics } from "../services";
+import { Category, getCategories } from "../../categories/service";
+import { getProducts, ProductMapped } from "../../products/services";
+import { getOrdersByPeriod, getSalesMetrics } from "../services";
 import { DashboardFilters, FilterState } from "./DashboardFilter";
 import { KPICards } from "./KPICards";
 import { SalesChart, SalesData } from "./SalesChart";
@@ -13,13 +14,11 @@ export const DashboardPage = () => {
     averageOrderValue: 0,
   });
   const [chartData, setChartData] = useState<SalesData[]>([]);
-  const [categories, setCategories] = useState<{ id: number; name: string }[]>(
-    []
-  );
-  const [products, setProducts] = useState<Array<Partial<Product>>>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [products, setProducts] = useState<ProductMapped[]>([]);
   const [filters, setFilters] = useState<FilterState>({
-    startDate: null,
-    endDate: null,
+    startDate: new Date(),
+    endDate: new Date(),
     categoryIds: [],
     productIds: [],
   });

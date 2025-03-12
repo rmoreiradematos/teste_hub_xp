@@ -3,7 +3,7 @@ import { IconButton } from "@mui/material";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { getProducts, ProductResponse } from "../services";
+import { getProducts, ProductMapped } from "../services";
 
 const columns: GridColDef[] = [
   { field: "name", headerName: "Nome", width: 200 },
@@ -42,11 +42,13 @@ const columns: GridColDef[] = [
 ];
 
 export const ProductList = () => {
-  const [products, setProducts] = useState<ProductResponse[]>([]);
+  const [products, setProducts] = useState<ProductMapped[]>([]);
 
   useEffect(() => {
     getProducts().then(setProducts);
   }, []);
+
+  console.log(products);
 
   return (
     <div style={{ height: 400, width: "100%" }}>
@@ -56,6 +58,7 @@ export const ProductList = () => {
         pagination
         pageSizeOptions={[5]}
         getRowHeight={() => "auto"}
+        getRowId={(row) => row._id}
       />
     </div>
   );

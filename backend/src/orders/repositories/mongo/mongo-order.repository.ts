@@ -20,7 +20,7 @@ export class MongoOrderRepository implements OrdersRepository {
   async findAll() {
     console.info('MongoOrderRepository > findAll');
     return this.orderModel
-      .find()
+      .find({ isActive: true })
       .populate({
         path: 'products',
         select: 'name',
@@ -47,7 +47,12 @@ export class MongoOrderRepository implements OrdersRepository {
   }
   async delete(id: string) {
     console.info('MongoOrderRepository > delete');
-    return this.orderModel.findByIdAndDelete(id);
+    const order = await this.orderModel.findById(id).exec();
+    if (!order) {
+      return null;
+    }
+    order.isActive = false;
+    return order.save();
   }
   async deleteMany(): Promise<void> {
     console.info('MongoOrderRepository > deleteMany');

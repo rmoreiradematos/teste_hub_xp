@@ -18,20 +18,26 @@ export class AwsService {
     });
   }
 
-  async getPresignedUrl(): Promise<{ url: string; key: string }> {
+  async getPresignedUrl(): Promise<{
+    url: string;
+    fullUrl: string;
+  }> {
     console.info('AWSService > Generating presigned URL');
 
-    const key = `{Date.now()}.jpg`;
+    const key = `${Date.now()}.jpg`;
     console.debug('AWSService >  Key:', key);
     const command = new PutObjectCommand({
       Bucket: this.BUCKET_NAME,
       Key: key,
-      ContentType: 'image/png',
+      ContentType: 'image/jpg',
+      ACL: 'public-read',
     });
 
     const url = await getSignedUrl(this.s3, command, { expiresIn: 300 });
-    console.info('AWSService > URL/KEY  :', { url, key });
-    return { url, key };
+    const fullUrl = `${process.env.S3_IMAGE_URL}/${key}`;
+
+    console.info('AWSService > URL/KEY/FULL-URL:', { url, key, fullUrl });
+    return { url, fullUrl };
   }
 
   async uploadFile(

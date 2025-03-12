@@ -14,6 +14,9 @@ export class Orders extends Document {
 
   @Prop({ required: true })
   total: number;
+
+  @Prop({ default: true })
+  isActive: boolean;
 }
 
 export const OrdersSchema = SchemaFactory.createForClass(Orders);

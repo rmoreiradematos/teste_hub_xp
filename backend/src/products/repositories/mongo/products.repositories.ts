@@ -20,7 +20,7 @@ export class MongoProductsRepository implements ProductsRepository {
   async findAll() {
     console.info('ProductsRepository > starting findAll');
     return this.productModel
-      .find()
+      .find({ isActive: true })
       .populate({
         path: 'categoryIds',
         select: 'name',

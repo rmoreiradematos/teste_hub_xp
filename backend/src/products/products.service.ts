@@ -28,8 +28,8 @@ export class ProductsService {
 
       let imageUrl = '';
       if (image) {
-        const { url, key } = await this.awsService.getPresignedUrl();
-        imageUrl = key;
+        const { url, fullUrl } = await this.awsService.getPresignedUrl();
+        imageUrl = fullUrl;
 
         await this.awsService.uploadFile(url, image);
       }
@@ -72,13 +72,13 @@ export class ProductsService {
     try {
       const product = await this.productsRepository.findOne(id);
       console.debug('ProductsService > Product found', product);
-
+      console.debug('ProductsService > Image', image);
       let imageUrl = '';
       if (image) {
         console.info('ProductsService > Uploading image to S3');
-        const { url, key } = await this.awsService.getPresignedUrl();
-        imageUrl = key;
-        console.debug('ProductsService > {url, key}', { url, key });
+        const { url, fullUrl } = await this.awsService.getPresignedUrl();
+        imageUrl = fullUrl;
+        console.debug('ProductsService > {url, key}', { url, fullUrl });
         await this.awsService.uploadFile(url, image);
         console.info('ProductsService > Image uploaded to S3');
       }

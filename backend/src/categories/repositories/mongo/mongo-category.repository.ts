@@ -22,7 +22,7 @@ export class MongoCategoriesRepository implements CategoriesRepository {
 
   async findAll(): Promise<Category[]> {
     console.info('CategoriesRepository > starting findAll');
-    return this.categoryModel.find().exec();
+    return this.categoryModel.find({ isActive: true }).exec();
   }
 
   async findOne(id: string | Types.ObjectId): Promise<Category | null> {

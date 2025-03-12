@@ -22,6 +22,13 @@ npm t
 docker-compose --profile dev up --build
 ```
 
+2.1 **Rodar o seed em ambiente de desenvolvimento (DEV)**
+Uma vez com o container up e na hierarquia de pasta aonde está o script de seed
+
+```bash
+node seed.js
+```
+
 3. **Documentação do swagger**
 
 ```bash
